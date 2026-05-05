@@ -16,3 +16,36 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const CityType = {
+  MEGACITY: 'MEGACITY',
+  OBLAST: 'OBLAST'
+} as const
+
+export type CityType = (typeof CityType)[keyof typeof CityType]
+
+
+export const Category = {
+  GENERAL: 'GENERAL',
+  WATER: 'WATER',
+  ELECTRICITY: 'ELECTRICITY',
+  HEAT: 'HEAT',
+  GAS: 'GAS',
+  GARBAGE: 'GARBAGE',
+  ROAD: 'ROAD',
+  ANNOUNCEMENT: 'ANNOUNCEMENT'
+} as const
+
+export type Category = (typeof Category)[keyof typeof Category]
+
+
+export const ProblemType = {
+  WATER: 'WATER',
+  ELECTRICITY: 'ELECTRICITY',
+  HEAT: 'HEAT',
+  GARBAGE: 'GARBAGE',
+  OTHER: 'OTHER'
+} as const
+
+export type ProblemType = (typeof ProblemType)[keyof typeof ProblemType]

@@ -1,30 +1,130 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
 enum Role {
- USER
- ADMIN
- SUPER_ADMIN
+  USER
+  ADMIN
+  SUPER_ADMIN
 }
 
-model User {
- id        String   @id @default(uuid())
- email     String   @unique
- name      String
- password  String
- role      Role     @default(USER)
-  createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
+enum CityType {
+  MEGACITY
+  OBLAST
+}
 
+enum Category {
+  GENERAL
+  WATER
+  ELECTRICITY
+  HEAT
+  GAS
+  GARBAGE
+  ROAD
+  ANNOUNCEMENT
+}
+
+enum ProblemType {
+  WATER
+  ELECTRICITY
+  HEAT
+  GARBAGE
+  OTHER
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────────
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  name       String
+  password   String
+  role       Role        @default(USER)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  articles   Article[]
+  likes      Like[]
+  comments   Comment[]
+  complaints Complaint[]
+}
+
+model City {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  type       CityType
+
+  articles   Article[]
+  complaints Complaint[]
+}
+
+model Article {
+  id        String    @id @default(uuid())
+  title     String
+  content   String
+  excerpt   String?
+  imageUrl  String?
+  slug      String    @unique
+  category  Category
+  tags      String[]
+  published Boolean   @default(false)
+  viewCount Int       @default(0)
+
+  cityId    Int?
+  city      City?     @relation(fields: [cityId], references: [id], onDelete: SetNull)
+
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  likes     Like[]
+  comments  Comment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Complaint {
+  id          String      @id @default(uuid())
+  address     String
+  problemType ProblemType
+  phone       String
+  description String?
+
+  cityId      Int
+  city        City        @relation(fields: [cityId], references: [id])
+
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime    @default(now())
 }
