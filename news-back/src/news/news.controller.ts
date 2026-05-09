@@ -27,25 +27,7 @@ import { User } from 'src/generated/prisma/client';
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
-  // ── Публичные ──────────────────────────────────────────────────────────────
-
-  @Public()
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Лента новостей с фильтрами' })
-  findAll(@Query() filter: NewsFilterDto) {
-    return this.newsService.findAll(filter);
-  }
-
-  @Public()
-  @Get(':slug')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Получить новость по slug (увеличивает просмотры)' })
-  findBySlug(@Param('slug') slug: string) {
-    return this.newsService.findBySlug(slug);
-  }
-
-  // ── Админ панель ───────────────────────────────────────────────────────────
+  // ── Админ роуты — ВСЕГДА ВЫШЕ динамических (:slug, :id) ───────────────────
 
   @Authorization()
   @Roles(Role.ADMIN)
@@ -55,6 +37,16 @@ export class NewsController {
   @ApiOperation({ summary: '[Admin] Все новости включая неопубликованные' })
   findAllAdmin(@Query() filter: NewsFilterDto) {
     return this.newsService.findAllAdmin(filter);
+  }
+
+  @Authorization()
+  @Roles(Role.ADMIN)
+  @Get('admin/one/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '[Admin] Получить одну новость по ID' })
+  findOneAdmin(@Param('id') id: string) {
+    return this.newsService.findById(id);
   }
 
   @Authorization()
@@ -94,6 +86,24 @@ export class NewsController {
     @Param('id') id: string,
     @Authorized() user: User,
   ) {
-    return this.newsService.remove(id, user.id, user.role as Role, );
+    return this.newsService.remove(id, user.id, user.role as Role);
+  }
+
+  // ── Публичные — динамические параметры идут последними ────────────────────
+
+  @Public()
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Лента новостей с фильтрами' })
+  findAll(@Query() filter: NewsFilterDto) {
+    return this.newsService.findAll(filter);
+  }
+
+  @Public()
+  @Get(':slug')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Получить новость по slug (увеличивает просмотры)' })
+  findBySlug(@Param('slug') slug: string) {
+    return this.newsService.findBySlug(slug);
   }
 }

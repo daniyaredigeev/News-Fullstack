@@ -14,6 +14,7 @@ import { NewsModule } from './news/news.module';
 import { LikeModule } from './like/like.module';
 import { CommentModule } from './comment/comment.module';
 import { ComplaintModule } from './complaint/complaint.module';
+import { UsersModule } from './users/users.module';
 
 import { JwtGuard } from './auth/guards/auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
@@ -33,6 +34,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     LikeModule,
     CommentModule,
     ComplaintModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
