@@ -62,13 +62,12 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-/* @UseGuards(AuthGuard('jwt')) */
-@Authorization() //создали свой декоратор для авторизации, который использует JwtGuard
- @Get('me')
- @HttpCode(HttpStatus.OK)
- async me(@Authorized('id') id: string) {   //async me(@Req() req: Request) {
-   return { id }; //req.user.id;
- }
+  @Authorization()
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  async me(@Authorized('id') id: string) {
+    return this.authService.getProfile(id);
+  }
 
 
 

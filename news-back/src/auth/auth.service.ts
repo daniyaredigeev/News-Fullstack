@@ -102,6 +102,15 @@ export class AuthService {
     return { message: 'Вы успешно вышли из аккаунта' };
   }
 
+  async getProfile(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true, name: true, role: true, createdAt: true },
+    });
+    if (!user) throw new NotFoundException('Пользователь не найден');
+    return user;
+  }
+
   async validateUser(id: string) {
    const user = await this.prisma.user.findUnique({
      where: { id },
@@ -114,14 +123,18 @@ export class AuthService {
  }
 
 
-  private auth(res: Response, id: string) {
+  private async auth(res: Response, id: string) {
     const { accessToken, refreshToken } = this.generateTokens(id);
     this.setCookie(
       res,
       refreshToken,
       new Date(60 * 60 * 24 * 1000 + Date.now()),
     );
-    return { accessToken };
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true, name: true, role: true },
+    });
+    return { accessToken, user };
   }
 
   private generateTokens(id: string) {
